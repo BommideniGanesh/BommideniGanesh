@@ -1,0 +1,75 @@
+import cv2
+import face_recognition
+import os
+import csv
+from datetime import datetime
+face_cascade=cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+imgganesh=face_recognition.load_image_file('C:/Users/91891/Downloads/ganesh.jpeg')
+imgganesh=cv2.cvtColor(imgganesh,cv2.COLOR_BGR2RGB)
+cv2.waitKey(0)
+faceloc=face_recognition.face_locations(imgganesh)[0]
+encodeganesh=face_recognition.face_encodings(imgganesh)[0]
+print(encodeganesh)
+a=cv2.rectangle(imgganesh,(faceloc[3],faceloc[0]),(faceloc[1],faceloc[2]),(255,0,255),2)
+#cv2.imshow("Attedence",a)
+imgBhavana=face_recognition.load_image_file('C:/Users/91891/Downloads/m5.jfif')
+imgBhavana=cv2.cvtColor(imgBhavana,cv2.COLOR_BGR2RGB)
+cv2.waitKey(0)
+faceloc=face_recognition.face_locations(imgBhavana)[0]
+encodeBhavana=face_recognition.face_encodings(imgBhavana)[0]
+m5=cv2.rectangle(imgBhavana,(faceloc[3],faceloc[0]),(faceloc[1],faceloc[2]),(255,0,255),2)
+#cv2.imshow("Attedence",m5)
+imgRavi=face_recognition.load_image_file('C:/Users/91891/Downloads/m4.jfif')
+imgRavi=cv2.cvtColor(imgRavi,cv2.COLOR_BGR2RGB)
+cv2.waitKey(0)
+faceloc=face_recognition.face_locations(imgRavi)[0]
+encodeRavi=face_recognition.face_encodings(imgRavi)[0]
+m4=cv2.rectangle(imgRavi,(faceloc[3],faceloc[0]),(faceloc[1],faceloc[2]),(255,0,255),2)
+#cv2.imshow("Attedence",m4)
+video=cv2.VideoCapture(0)
+address='http://192.168.0.3:8080/video'
+video.open(address)
+count=0
+while True:
+    ret,img=video.read()
+    cv2.imshow("test",img)
+    if not ret:
+        break
+    k=cv2.waitKey(1)
+    if k%256==32:
+        print("image "+str(count)+"saved")
+        file="C:/Users/91891/Pictures/Camera Roll/img"+str(count)+'.jpg'
+        cv2.imwrite(file,img)
+        count+=1
+        imgtest=face_recognition.load_image_file(file)
+        imgtest=cv2.cvtColor(imgtest,cv2.COLOR_BGR2RGB)
+        faceloc=face_recognition.face_locations(imgtest)[0]
+        encodetest=face_recognition.face_encodings(imgtest)[0]
+        b=cv2.rectangle(imgtest,(faceloc[3],faceloc[0]),(faceloc[1],faceloc[2]),(255,0,255),2)
+        cv2.imshow('caputeredimage',b)
+        result=face_recognition.compare_faces([encodeganesh],encodetest)
+        #print(result)
+        result1=face_recognition.compare_faces([encodeBhavana],encodetest)
+        #print(result1)
+        result2=face_recognition.compare_faces([encodeRavi],encodetest)
+        #print(result2)
+        if result:
+            with open('Attedence.csv', 'w', newline='') as file:
+                now=datetime.now()
+                writer = csv.writer(file)
+                writer.writerow(["Ganeshbabuj8",now,'present'])
+        elif result1:
+            with open('Attedence.csv', 'w', newline='') as file:
+                now=datetime.now()
+                writer = csv.writer(file)
+                writer.writerow(["Bhavanam5",now,'present'])
+        elif result2:
+            with open('Attedence.csv', 'w', newline='') as file:
+                now=datetime.now()
+                writer = csv.writer(file)
+                writer.writerow(["RaviKiranm5",now,'present'])
+    if k%256==27:
+        print("close")
+        break
+video.release()
+cv2.destroyAllWindows()
